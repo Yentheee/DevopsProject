@@ -2,12 +2,14 @@ version: "3"
 services:
   todo-api:
     build: ./backend
+    env_file:
+      - .env
     environment:
       MYSQL_STORAGE: mysql
       MYSQL_HOST: db
-      MYSQL_USER: user
-      MYSQL_PWD: DitISGoed
-      MYSQL_DB: database
+      MYSQL_USER: ${DB_USR}
+      MYSQL_PWD: ${DB_PW}
+      MYSQL_DB: ${DB_DATABASE}
     labels:
       - "traefik.http.routers.todo-api.rule=Host(`s140013.devops-ap.be`) && PathPrefix(`/api`)"
       - "traefik.http.routers.todo-api.tls=true"
@@ -22,7 +24,7 @@ services:
     volumes:
       - "./frontend:/usr/share/nginx/html/"
     labels:
-      - "traefik.http.routers.frontend.rule=Host(`s140013.devops-ap.be`)"
+      - "traefik.http.routers.frontend.rule=Host(`s140013.devops-ap.be`) && !PathPrefix(`/api`)"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
     networks:
@@ -33,11 +35,13 @@ services:
     volumes:
       - "db-volume:/var/lib/mysql"
       - "./init.sql:/docker-entrypoint-initdb.d/init.sql:ro"
+    env_file:
+      - .env
     environment:
-      - "MYSQL_ROOT_PASSWORD=DitISGoed"
-      - "MYSQL_DATABASE=database"
-      - "MYSQL_USER=user"
-      - "MYSQL_PASSWORD=DitISGoed"
+      - "MYSQL_ROOT_PASSWORD=${DB_ROOT_PW}"
+      - "MYSQL_DATABASE=${DB_DATABASE}"
+      - "MYSQL_USER=${DB_USR}"
+      - "MYSQL_PASSWORD=${DB_PW}"
     networks:
       - database
 
