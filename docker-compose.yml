@@ -1,0 +1,19 @@
+version: "3"
+services:
+  todo-api:
+    build: ./backend
+  
+  frontend:
+    image: nginx:1.22
+    volumes:
+      - "./frontend:/usr/share/nginx/html/"
+    labels:
+      - "traefik.http.routers.frontend.rule=Host(`s140013.devops-ap.be`)"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+    networks:
+      - proxy
+networks:
+  proxy:
+    external: true
+    name: traefik
